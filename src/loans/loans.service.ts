@@ -77,6 +77,12 @@ export class LoansService {
     actor: AuthenticatedUser,
     correlationId: string,
   ) {
+    if (!dto.bookId && !dto.copyId) {
+      throw new BadRequestException(
+        'Provide at least one of: bookId, copyId',
+      );
+    }
+
     const borrowerId = this.resolveBorrowerId(dto, actor);
 
     return withTransaction(this.connection, async (session) => {
@@ -88,20 +94,10 @@ export class LoansService {
         throw new ForbiddenException('Suspended users cannot borrow');
       }
 
-      const book = await this.bookModel.findById(dto.bookId).session(session);
-      if (!book) {
-        throw new NotFoundException('Book not found');
-      }
+      const { book, copy } = await this.resolveBookAndCopy(dto, session);
+
       if (book.status !== BookStatus.ACTIVE) {
         throw new ConflictException('Book is archived; new issues are not allowed');
-      }
-
-      const copy = await this.copyModel.findById(dto.copyId).session(session);
-      if (!copy) {
-        throw new NotFoundException('Copy not found');
-      }
-      if (copy.bookId.toString() !== book._id.toString()) {
-        throw new BadRequestException('Copy does not belong to the given book');
       }
 
       // Atomic conditional transition: only one concurrent issue can win.
@@ -562,6 +558,40 @@ export class LoansService {
       this.loanModel.countDocuments(filter),
     ]);
     return { items: items.map((l) => this.toView(l)), total, page, limit };
+  }
+
+  private async resolveBookAndCopy(
+    dto: IssueLoanDto,
+    session: ClientSession,
+  ): Promise<{ book: BookDocument; copy: BookCopyDocument }> {
+    if (dto.copyId) {
+      // Copy was specified — derive book from it (or validate against dto.bookId).
+      const copy = await this.copyModel.findById(dto.copyId).session(session);
+      if (!copy) throw new NotFoundException('Copy not found');
+
+      const bookId = dto.bookId ?? copy.bookId.toString();
+      if (copy.bookId.toString() !== bookId) {
+        throw new BadRequestException('Copy does not belong to the given book');
+      }
+
+      const book = await this.bookModel.findById(bookId).session(session);
+      if (!book) throw new NotFoundException('Book not found');
+
+      return { book, copy };
+    }
+
+    // No copyId — auto-pick any AVAILABLE copy of the book.
+    const book = await this.bookModel.findById(dto.bookId).session(session);
+    if (!book) throw new NotFoundException('Book not found');
+
+    const copy = await this.copyModel
+      .findOne({ bookId: book._id, status: CopyStatus.AVAILABLE })
+      .session(session);
+    if (!copy) {
+      throw new ConflictException('No available copies of this book');
+    }
+
+    return { book, copy };
   }
 
   private resolveBorrowerId(

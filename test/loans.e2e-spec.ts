@@ -67,6 +67,54 @@ describe('Loan lifecycle, corrections & audit (e2e)', () => {
     expect(copy.body.status).toBe('ON_LOAN');
   });
 
+  it('auto-picks an available copy when copyId is omitted (bookId only)', async () => {
+    const book = await createBook(ctx, libToken);
+    await addCopies(ctx, libToken, book._id, [
+      `AP-${Date.now()}-1`,
+      `AP-${Date.now()}-2`,
+    ]);
+    const res = await ctx
+      .http()
+      .post(`${API_PREFIX}/loans/issue`)
+      .set(auth(studentToken))
+      .send({ bookId: book._id });
+    expect(res.status).toBe(201);
+    expect(res.body.copyId).toBeDefined();
+    expect(res.body.bookSnapshot.title).toBe('Test Book');
+  });
+
+  it('derives bookId from copyId when bookId is omitted', async () => {
+    const { copyId } = await freshCopy();
+    const res = await ctx
+      .http()
+      .post(`${API_PREFIX}/loans/issue`)
+      .set(auth(studentToken))
+      .send({ copyId });
+    expect(res.status).toBe(201);
+    expect(res.body.bookId).toBeDefined();
+    expect(res.body.copyId).toBe(copyId);
+  });
+
+  it('rejects issue when neither bookId nor copyId is provided', async () => {
+    const res = await ctx
+      .http()
+      .post(`${API_PREFIX}/loans/issue`)
+      .set(auth(studentToken))
+      .send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 409 when auto-picking with no available copies', async () => {
+    const book = await createBook(ctx, libToken);
+    // no copies added at all
+    const res = await ctx
+      .http()
+      .post(`${API_PREFIX}/loans/issue`)
+      .set(auth(studentToken))
+      .send({ bookId: book._id });
+    expect(res.status).toBe(409);
+  });
+
   it('returns a loan (student self-return) and frees the copy', async () => {
     const { copyId, res } = await issueToStudent();
     const ret = await ctx
