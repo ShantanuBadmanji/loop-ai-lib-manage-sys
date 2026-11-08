@@ -8,7 +8,7 @@ function hasErrorLabel(error: unknown, label: string): boolean {
     error !== null &&
     'errorLabels' in error &&
     Array.isArray((error as { errorLabels?: unknown }).errorLabels) &&
-    ((error as { errorLabels: string[] }).errorLabels.includes(label))
+    (error as { errorLabels: string[] }).errorLabels.includes(label)
   );
 }
 

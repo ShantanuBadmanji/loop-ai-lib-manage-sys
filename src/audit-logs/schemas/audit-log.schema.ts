@@ -24,7 +24,10 @@ export class AuditChange {
 }
 export const AuditChangeSchema = SchemaFactory.createForClass(AuditChange);
 
-@Schema({ timestamps: { createdAt: true, updatedAt: false }, collection: 'audit_logs' })
+@Schema({
+  timestamps: { createdAt: true, updatedAt: false },
+  collection: 'audit_logs',
+})
 export class AuditLog {
   @Prop({ type: SchemaTypes.ObjectId, default: null })
   actorId: Types.ObjectId | null;

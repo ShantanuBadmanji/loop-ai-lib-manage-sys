@@ -15,7 +15,10 @@ import {
   AuditActorType,
   AuditEntityType,
 } from '../audit-logs/enums/audit.enums';
-import { BookCopy, BookCopyDocument } from '../book-copies/schemas/book-copy.schema';
+import {
+  BookCopy,
+  BookCopyDocument,
+} from '../book-copies/schemas/book-copy.schema';
 import { CopyStatus } from '../book-copies/enums/copy-status.enum';
 import { Book, BookDocument } from '../books/schemas/book.schema';
 import { BookStatus } from '../books/enums/book-status.enum';
@@ -79,15 +82,15 @@ export class LoansService {
     correlationId: string,
   ) {
     if (!dto.bookId && !dto.copyId) {
-      throw new BadRequestException(
-        'Provide at least one of: bookId, copyId',
-      );
+      throw new BadRequestException('Provide at least one of: bookId, copyId');
     }
 
     const borrowerId = this.resolveBorrowerId(dto, actor);
 
     return withTransaction(this.connection, async (session) => {
-      const borrower = await this.userModel.findById(borrowerId).session(session);
+      const borrower = await this.userModel
+        .findById(borrowerId)
+        .session(session);
       if (!borrower || borrower.role !== Role.STUDENT) {
         throw new NotFoundException('Borrower (student) not found');
       }
@@ -98,7 +101,9 @@ export class LoansService {
       const { book, copy } = await this.resolveBookAndCopy(dto, session);
 
       if (book.status !== BookStatus.ACTIVE) {
-        throw new ConflictException('Book is archived; new issues are not allowed');
+        throw new ConflictException(
+          'Book is archived; new issues are not allowed',
+        );
       }
 
       // Atomic conditional transition: only one concurrent issue can win.
@@ -117,9 +122,7 @@ export class LoansService {
       }
 
       const issuedAt = new Date();
-      const dueAt = new Date(
-        issuedAt.getTime() + this.periodDays * 86_400_000,
-      );
+      const dueAt = new Date(issuedAt.getTime() + this.periodDays * 86_400_000);
 
       const [loan] = await this.loanModel.create(
         [
@@ -182,13 +185,15 @@ export class LoansService {
       const loan = await this.loadLoan(loanId, session);
       this.assertCanAccessLoan(loan, actor);
       if (loan.status !== LoanStatus.ACTIVE) {
-        throw new ConflictException('Loan is not active; it cannot be returned');
+        throw new ConflictException(
+          'Loan is not active; it cannot be returned',
+        );
       }
 
       const isLibrarian = actor.role === Role.LIBRARIAN;
       // Students cannot assess damage; their self-returns are recorded GOOD.
       const condition = isLibrarian
-        ? dto.condition ?? ReturnCondition.GOOD
+        ? (dto.condition ?? ReturnCondition.GOOD)
         : ReturnCondition.GOOD;
 
       const copy = await this.copyModel.findById(loan.copyId).session(session);
@@ -310,9 +315,7 @@ export class LoansService {
         loan.status === LoanStatus.VOIDED ||
         loan.status === LoanStatus.LOST
       ) {
-        throw new ConflictException(
-          `Cannot correct a ${loan.status} loan`,
-        );
+        throw new ConflictException(`Cannot correct a ${loan.status} loan`);
       }
 
       const before: Record<string, unknown> = {};
@@ -340,7 +343,9 @@ export class LoansService {
           }
           const newDue = new Date(dto.newDueAt);
           if (newDue.getTime() <= loan.issuedAt.getTime()) {
-            throw new BadRequestException('Due date must be after the issue date');
+            throw new BadRequestException(
+              'Due date must be after the issue date',
+            );
           }
           await this.assertNoCopyOverlap(session, loan, loan.issuedAt, newDue);
           before.dueAt = loan.dueAt;
@@ -354,7 +359,9 @@ export class LoansService {
           }
           const newIssued = new Date(dto.newIssuedAt);
           if (newIssued.getTime() >= loan.dueAt.getTime()) {
-            throw new BadRequestException('Issue date must be before the due date');
+            throw new BadRequestException(
+              'Issue date must be before the due date',
+            );
           }
           await this.assertNoCopyOverlap(session, loan, newIssued, loan.dueAt);
           before.issuedAt = loan.issuedAt;
@@ -659,7 +666,9 @@ export class LoansService {
       .find({
         copyId: loan.copyId,
         _id: { $ne: loan._id },
-        status: { $in: [LoanStatus.ACTIVE, LoanStatus.RETURNED, LoanStatus.LOST] },
+        status: {
+          $in: [LoanStatus.ACTIVE, LoanStatus.RETURNED, LoanStatus.LOST],
+        },
       })
       .session(session);
     for (const other of others) {

@@ -27,7 +27,8 @@ export default (): AppConfig => ({
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: parseInt(process.env.PORT ?? '3000', 10),
   mongodbUri:
-    process.env.MONGODB_URI ?? 'mongodb://localhost:27017/library?replicaSet=rs0',
+    process.env.MONGODB_URI ??
+    'mongodb://localhost:27017/library?replicaSet=rs0',
   jwt: {
     secret: process.env.JWT_SECRET ?? 'dev-only-insecure-secret-change-me',
     expiresIn: process.env.JWT_EXPIRES_IN ?? '3600s',
@@ -48,7 +49,8 @@ export default (): AppConfig => ({
     .map((o) => o.trim())
     .filter(Boolean),
   seed: {
-    librarianEmail: process.env.SEED_LIBRARIAN_EMAIL ?? 'librarian@university.edu',
+    librarianEmail:
+      process.env.SEED_LIBRARIAN_EMAIL ?? 'librarian@university.edu',
     librarianPassword: process.env.SEED_LIBRARIAN_PASSWORD ?? 'Librarian@123',
     studentEmail: process.env.SEED_STUDENT_EMAIL ?? 'student@university.edu',
     studentPassword: process.env.SEED_STUDENT_PASSWORD ?? 'Student@123',

@@ -12,7 +12,8 @@ export class StudentProfile {
   @Prop({ required: true, trim: true })
   department: string;
 }
-export const StudentProfileSchema = SchemaFactory.createForClass(StudentProfile);
+export const StudentProfileSchema =
+  SchemaFactory.createForClass(StudentProfile);
 
 @Schema({ _id: false })
 export class LibrarianProfile {

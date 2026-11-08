@@ -13,7 +13,9 @@ function contextFor(user: unknown): ExecutionContext {
 
 describe('RolesGuard', () => {
   it('allows when no roles are required', () => {
-    const reflector = { getAllAndOverride: () => undefined } as unknown as Reflector;
+    const reflector = {
+      getAllAndOverride: () => undefined,
+    } as unknown as Reflector;
     const guard = new RolesGuard(reflector);
     expect(guard.canActivate(contextFor(undefined))).toBe(true);
   });

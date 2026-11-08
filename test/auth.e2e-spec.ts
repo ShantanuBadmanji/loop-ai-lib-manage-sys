@@ -58,10 +58,7 @@ describe('Auth & authorization (e2e)', () => {
   it('returns the current user from /auth/me', async () => {
     const { payload } = await registerStudent(ctx);
     const { token } = await login(ctx, payload.email, payload.password);
-    const res = await ctx
-      .http()
-      .get(`${API_PREFIX}/auth/me`)
-      .set(auth(token));
+    const res = await ctx.http().get(`${API_PREFIX}/auth/me`).set(auth(token));
     expect(res.status).toBe(200);
     expect(res.body.email).toBe(payload.email.toLowerCase());
   });

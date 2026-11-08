@@ -30,9 +30,21 @@ describe('Catalogue & inventory (e2e)', () => {
 
   it('searches books by a meaningful title word (q uses MongoDB $text)', async () => {
     // $text matches whole words and stems; stop words like "the" are excluded by the engine.
-    await createBook(ctx, libToken, { title: 'Algorithms Unlocked', authors: ['Cormen'], isbn: undefined });
-    await createBook(ctx, libToken, { title: 'Introduction to Algorithms', authors: ['Cormen'], isbn: undefined });
-    await createBook(ctx, libToken, { title: 'Clean Code', authors: ['Martin'], isbn: undefined });
+    await createBook(ctx, libToken, {
+      title: 'Algorithms Unlocked',
+      authors: ['Cormen'],
+      isbn: undefined,
+    });
+    await createBook(ctx, libToken, {
+      title: 'Introduction to Algorithms',
+      authors: ['Cormen'],
+      isbn: undefined,
+    });
+    await createBook(ctx, libToken, {
+      title: 'Clean Code',
+      authors: ['Martin'],
+      isbn: undefined,
+    });
 
     const res = await ctx
       .http()
@@ -41,15 +53,29 @@ describe('Catalogue & inventory (e2e)', () => {
     expect(res.status).toBe(200);
     // $text stems "algorithm" to match "Algorithms" in both titles.
     expect(res.body.total).toBe(2);
-    const titles: string[] = res.body.items.map((b: { title: string }) => b.title);
+    const titles: string[] = res.body.items.map(
+      (b: { title: string }) => b.title,
+    );
     expect(titles).toContain('Algorithms Unlocked');
     expect(titles).toContain('Introduction to Algorithms');
   });
 
   it('searches books by author name via q', async () => {
-    await createBook(ctx, libToken, { title: 'Clean Code', authors: ['Robert Martin'], isbn: undefined });
-    await createBook(ctx, libToken, { title: 'Clean Architecture', authors: ['Robert Martin'], isbn: undefined });
-    await createBook(ctx, libToken, { title: 'SICP', authors: ['Abelson'], isbn: undefined });
+    await createBook(ctx, libToken, {
+      title: 'Clean Code',
+      authors: ['Robert Martin'],
+      isbn: undefined,
+    });
+    await createBook(ctx, libToken, {
+      title: 'Clean Architecture',
+      authors: ['Robert Martin'],
+      isbn: undefined,
+    });
+    await createBook(ctx, libToken, {
+      title: 'SICP',
+      authors: ['Abelson'],
+      isbn: undefined,
+    });
 
     const res = await ctx
       .http()
@@ -60,7 +86,11 @@ describe('Catalogue & inventory (e2e)', () => {
   });
 
   it('returns empty results for a query with no matches', async () => {
-    await createBook(ctx, libToken, { title: 'Clean Code', authors: ['Robert Martin'], isbn: undefined });
+    await createBook(ctx, libToken, {
+      title: 'Clean Code',
+      authors: ['Robert Martin'],
+      isbn: undefined,
+    });
     const res = await ctx
       .http()
       .get(`${API_PREFIX}/books?q=zzznomatch`)

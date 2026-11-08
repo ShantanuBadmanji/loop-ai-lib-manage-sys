@@ -67,7 +67,8 @@ export async function registerStudent(
     name: overrides.name ?? 'Test Student',
     email: overrides.email ?? `student-${Date.now()}-${Math.random()}@u.edu`,
     password: overrides.password ?? 'Student@123',
-    enrollmentNumber: overrides.enrollmentNumber ?? `ENR-${Date.now()}-${Math.random()}`,
+    enrollmentNumber:
+      overrides.enrollmentNumber ?? `ENR-${Date.now()}-${Math.random()}`,
     department: overrides.department ?? 'CS',
   };
   const res = await ctx.http().post(`${PREFIX}/auth/register`).send(payload);
@@ -79,7 +80,11 @@ export async function login(ctx: TestContext, email: string, password: string) {
     .http()
     .post(`${PREFIX}/auth/login`)
     .send({ email, password });
-  return { token: res.body.accessToken as string, body: res.body, status: res.status };
+  return {
+    token: res.body.accessToken as string,
+    body: res.body,
+    status: res.status,
+  };
 }
 
 /** Inserts a librarian directly (bootstrap) and returns a valid access token. */

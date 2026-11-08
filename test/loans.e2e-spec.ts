@@ -227,7 +227,11 @@ describe('Loan lifecycle, corrections & audit (e2e)', () => {
   it('prevents a student from reading another student’s loan', async () => {
     const { res } = await issueToStudent();
     const other = await registerStudent(ctx);
-    const otherLogin = await login(ctx, other.payload.email, other.payload.password);
+    const otherLogin = await login(
+      ctx,
+      other.payload.email,
+      other.payload.password,
+    );
     const get = await ctx
       .http()
       .get(`${API_PREFIX}/loans/${res.body._id}`)
@@ -238,7 +242,11 @@ describe('Loan lifecycle, corrections & audit (e2e)', () => {
   it('corrects the borrower with a reason and audits before/after', async () => {
     const { res } = await issueToStudent();
     const other = await registerStudent(ctx);
-    const otherLogin = await login(ctx, other.payload.email, other.payload.password);
+    const otherLogin = await login(
+      ctx,
+      other.payload.email,
+      other.payload.password,
+    );
 
     const correct = await ctx
       .http()

@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, FilterQuery, Model, Types } from 'mongoose';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';

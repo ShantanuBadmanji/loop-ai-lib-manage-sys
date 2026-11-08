@@ -65,7 +65,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const res = exception.getResponse();
       if (typeof res === 'string') {
-        return { status: exception.getStatus(), message: res, error: exception.name };
+        return {
+          status: exception.getStatus(),
+          message: res,
+          error: exception.name,
+        };
       }
       const obj = res as Record<string, unknown>;
       return {
@@ -107,7 +111,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     };
   }
 
-  private isMongoDuplicateKey(exception: unknown): exception is MongoWriteError {
+  private isMongoDuplicateKey(
+    exception: unknown,
+  ): exception is MongoWriteError {
     return (
       typeof exception === 'object' &&
       exception !== null &&

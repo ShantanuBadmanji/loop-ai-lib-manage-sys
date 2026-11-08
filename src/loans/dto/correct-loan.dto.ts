@@ -17,7 +17,8 @@ export class CorrectLoanDto {
 
   @ApiProperty({
     example: 'Issued to the wrong student due to a barcode scan error',
-    description: 'Required, non-empty justification; preserved in the audit log',
+    description:
+      'Required, non-empty justification; preserved in the audit log',
   })
   @IsString()
   @IsNotEmpty()
@@ -34,7 +35,9 @@ export class CorrectLoanDto {
   @IsISO8601()
   newDueAt?: string;
 
-  @ApiPropertyOptional({ description: 'Required when correctionType=ISSUE_DATE' })
+  @ApiPropertyOptional({
+    description: 'Required when correctionType=ISSUE_DATE',
+  })
   @IsOptional()
   @IsISO8601()
   newIssuedAt?: string;

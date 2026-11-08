@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -68,7 +60,9 @@ export class BookCopiesController {
 
   @Post('copies/:id/repair')
   @Roles(Role.LIBRARIAN)
-  @ApiOperation({ summary: 'Repair a damaged copy: DAMAGED -> AVAILABLE (librarian only)' })
+  @ApiOperation({
+    summary: 'Repair a damaged copy: DAMAGED -> AVAILABLE (librarian only)',
+  })
   repair(
     @Param('id') id: string,
     @Body() dto: CopyReasonDto,

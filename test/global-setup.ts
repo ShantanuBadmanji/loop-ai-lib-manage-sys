@@ -20,6 +20,7 @@ module.exports = async () => {
   process.env.THROTTLE_AUTH_REGISTER_LIMIT = '100000';
   process.env.THROTTLE_AUTH_LOGIN_LIMIT = '100000';
 
-  (globalThis as unknown as { __MONGO_REPLSET__: MongoMemoryReplSet }).__MONGO_REPLSET__ =
-    replSet;
+  (
+    globalThis as unknown as { __MONGO_REPLSET__: MongoMemoryReplSet }
+  ).__MONGO_REPLSET__ = replSet;
 };

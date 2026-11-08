@@ -2,7 +2,9 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class DamageClaimDto {
-  @ApiPropertyOptional({ example: 'Cover torn, discovered during post-return inspection' })
+  @ApiPropertyOptional({
+    example: 'Cover torn, discovered during post-return inspection',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(500)

@@ -6,7 +6,12 @@ export type BookCopyDocument = HydratedDocument<BookCopy>;
 
 @Schema({ timestamps: true, collection: 'book_copies' })
 export class BookCopy {
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'Book', required: true, index: true })
+  @Prop({
+    type: SchemaTypes.ObjectId,
+    ref: 'Book',
+    required: true,
+    index: true,
+  })
   bookId: Types.ObjectId;
 
   @Prop({ required: true, trim: true })

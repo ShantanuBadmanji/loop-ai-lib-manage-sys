@@ -63,14 +63,16 @@ export class AuditLogsService {
       if (query.entityId)
         entityMatch.entityId = new Types.ObjectId(query.entityId);
       const changeMatch: FilterQuery<AuditLogDocument> = {};
-      if (query.entityType) changeMatch['changes.entityType'] = query.entityType;
+      if (query.entityType)
+        changeMatch['changes.entityType'] = query.entityType;
       if (query.entityId)
         changeMatch['changes.entityId'] = new Types.ObjectId(query.entityId);
       filter.$or = [entityMatch, changeMatch];
     }
     if (query.from || query.to) {
       filter.createdAt = {};
-      if (query.from) (filter.createdAt as Record<string, Date>).$gte = query.from;
+      if (query.from)
+        (filter.createdAt as Record<string, Date>).$gte = query.from;
       if (query.to) (filter.createdAt as Record<string, Date>).$lte = query.to;
     }
 

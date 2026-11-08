@@ -97,7 +97,8 @@ export class LoansController {
   @Roles(Role.LIBRARIAN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'File a damage claim within the post-return window (librarian only)',
+    summary:
+      'File a damage claim within the post-return window (librarian only)',
   })
   damageClaim(
     @Param('id') id: string,
