@@ -68,7 +68,7 @@ export class BookCopiesController {
 
   @Post('copies/:id/repair')
   @Roles(Role.LIBRARIAN)
-  @ApiOperation({ summary: 'Repair a damaged copy: DAMAGED -> AVAILABLE' })
+  @ApiOperation({ summary: 'Repair a damaged copy: DAMAGED -> AVAILABLE (librarian only)' })
   repair(
     @Param('id') id: string,
     @Body() dto: CopyReasonDto,

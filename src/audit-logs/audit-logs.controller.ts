@@ -24,19 +24,19 @@ export class AuditLogsController {
   }
 
   @Get('loan/:id')
-  @ApiOperation({ summary: 'Audit trail for a loan' })
+  @ApiOperation({ summary: 'Audit trail for a loan (librarian only)' })
   byLoan(@Param('id') id: string) {
     return this.auditLogsService.findByEntity(AuditEntityType.LOAN, id);
   }
 
   @Get('copy/:id')
-  @ApiOperation({ summary: 'Audit trail for a book copy' })
+  @ApiOperation({ summary: 'Audit trail for a book copy (librarian only)' })
   byCopy(@Param('id') id: string) {
     return this.auditLogsService.findByEntity(AuditEntityType.BOOK_COPY, id);
   }
 
   @Get('book/:id')
-  @ApiOperation({ summary: 'Audit trail for a book' })
+  @ApiOperation({ summary: 'Audit trail for a book (librarian only)' })
   byBook(@Param('id') id: string) {
     return this.auditLogsService.findByEntity(AuditEntityType.BOOK, id);
   }
