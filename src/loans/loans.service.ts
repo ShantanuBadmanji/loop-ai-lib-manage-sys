@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -106,8 +107,13 @@ export class LoansService {
         { $set: { status: CopyStatus.ON_LOAN } },
         { session },
       );
-      if (claimed.modifiedCount !== 1) {
+      if (claimed.modifiedCount === 0) {
         throw new ConflictException('Copy is not available for loan');
+      }
+      if (claimed.modifiedCount > 1) {
+        throw new InternalServerErrorException(
+          'Data integrity violation: multiple copies matched a single _id update',
+        );
       }
 
       const issuedAt = new Date();
