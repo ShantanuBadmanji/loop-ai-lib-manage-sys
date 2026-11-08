@@ -7,21 +7,26 @@ The design treats data consistency across `loans`, `book_copies`, and `audit_log
 ---
 
 ## Table of contents
-- [Technology](#technology)
-- [Quick start (Docker)](#quick-start-docker)
-- [Local development (Atlas or local replica set)](#local-development)
-- [Seeding & demo accounts](#seeding--demo-accounts)
-- [API & Swagger](#api--swagger)
-- [Architecture](#architecture)
-- [Domain model & indexes](#domain-model--indexes)
-- [Key workflows](#key-workflows)
-- [Transactions & concurrency strategy](#transactions--concurrency-strategy)
-- [Audit & correction strategy](#audit--correction-strategy)
-- [Authentication & authorization](#authentication--authorization)
-- [Testing](#testing)
-- [Business assumptions](#business-assumptions)
-- [Cloud deployment notes](#cloud-deployment-notes)
-- [Known limitations & future extensions](#known-limitations--future-extensions)
+- [University Library Management System](#university-library-management-system)
+  - [Table of contents](#table-of-contents)
+  - [Technology](#technology)
+  - [Quick start (Docker)](#quick-start-docker)
+  - [Local development](#local-development)
+  - [Seeding \& demo accounts](#seeding--demo-accounts)
+  - [API \& Swagger](#api--swagger)
+    - [Student flows](#student-flows)
+    - [Librarian flows](#librarian-flows)
+    - [Shared / public](#shared--public)
+  - [Architecture](#architecture)
+  - [Domain model \& indexes](#domain-model--indexes)
+  - [Key workflows](#key-workflows)
+  - [Transactions \& concurrency strategy](#transactions--concurrency-strategy)
+  - [Audit \& correction strategy](#audit--correction-strategy)
+  - [Authentication \& authorization](#authentication--authorization)
+  - [Testing](#testing)
+  - [Business assumptions](#business-assumptions)
+  - [Cloud deployment notes](#cloud-deployment-notes)
+  - [Known limitations \& future extensions](#known-limitations--future-extensions)
 
 ---
 
@@ -228,7 +233,6 @@ erDiagram
 ```bash
 npm test            # unit tests (no DB)
 npm run test:e2e    # integration tests (boots the full app against a replica set)
-npm run test:cov    # unit coverage
 ```
 
 - **Integration tests** spin up an in-memory MongoDB **replica set** (`mongodb-memory-server`) so transactions behave exactly as in production, with **no Docker required** for the suite. To run them against the bundled Docker replica set instead, start `docker compose up mongo` and set `MONGODB_URI` before `npm run test:e2e`.
