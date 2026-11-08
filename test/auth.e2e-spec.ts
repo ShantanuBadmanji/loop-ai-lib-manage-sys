@@ -116,7 +116,7 @@ describe('Auth & authorization (e2e)', () => {
     // Suspend the student.
     const suspend = await ctx
       .http()
-      .patch(`${API_PREFIX}/users/${studentId}/suspend`)
+      .patch(`${API_PREFIX}/users/students/${studentId}/suspend`)
       .set(auth(libToken))
       .send({ suspended: true, reason: 'test' });
     expect(suspend.status).toBe(200);

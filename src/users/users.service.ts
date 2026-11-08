@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -180,6 +181,27 @@ export class UsersService {
 
       return this.toProfile(user);
     });
+  }
+
+  async lookupStudent(
+    email?: string,
+    enrollmentNumber?: string,
+  ): Promise<UserProfile> {
+    if (!email && !enrollmentNumber) {
+      throw new BadRequestException(
+        'Provide at least one of: email, enrollmentNumber',
+      );
+    }
+    const filter: Record<string, unknown> = { role: Role.STUDENT };
+    if (email) filter.email = email.toLowerCase().trim();
+    if (enrollmentNumber)
+      filter['studentProfile.enrollmentNumber'] = enrollmentNumber;
+
+    const user = await this.userModel.findOne(filter).lean();
+    if (!user) {
+      throw new NotFoundException('Student not found');
+    }
+    return this.toProfile(user as UserDocument);
   }
 
   private async assertEmailFree(email: string): Promise<void> {
