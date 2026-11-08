@@ -1,0 +1,53 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: library-mongo
+    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      # Initiate the single-node replica set on first run; succeeds thereafter.
+      # Multi-document transactions require a replica set (a standalone mongod will not do).
+      test: >
+        mongosh --quiet --eval "try { rs.status().ok } catch (e) {
+          rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }).ok
+        }"
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 15s
+
+  api:
+    build: .
+    container_name: library-api
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/library?replicaSet=rs0
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-please-32chars}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-3600s}
+      LOAN_PERIOD_DAYS: ${LOAN_PERIOD_DAYS:-14}
+      DAMAGE_CLAIM_WINDOW_HOURS: ${DAMAGE_CLAIM_WINDOW_HOURS:-48}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/v1/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  mongo-data:
