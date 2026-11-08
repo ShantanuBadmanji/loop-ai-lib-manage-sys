@@ -11,7 +11,14 @@ import {
 import { BookStatus } from '../enums/book-status.enum';
 
 export class QueryBooksDto {
-  @ApiPropertyOptional({ description: 'Full-text search over title/authors/category' })
+  @ApiPropertyOptional({
+    description:
+      'Full-text search across title, authors, and category using MongoDB $text. ' +
+      'Searches whole words and their stems (e.g. "algorithm" matches "algorithms"). ' +
+      'Common English stop words (a, the, is, of, …) are ignored by the engine and return no results. ' +
+      'For exact phrase matching wrap the term in double quotes: "clean code". ' +
+      'Use the separate `author`, `category`, or `isbn` filters for precise field lookups.',
+  })
   @IsOptional()
   @IsString()
   q?: string;
