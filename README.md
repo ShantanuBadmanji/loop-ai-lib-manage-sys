@@ -204,7 +204,12 @@ erDiagram
 ## Transactions & concurrency strategy
 
 - A single `withTransaction(connection, work)` helper (`src/database/transaction.util.ts`) threads **one session** through every write — including the audit insert — and retries on `TransientTransactionError` / `UnknownTransactionCommitResult`.
-- **Last-copy race:** the issue path does `updateOne({ _id, status: 'AVAILABLE' }, { status: 'ON_LOAN' })`. MongoDB serializes the two updates; exactly one sees `modifiedCount === 1` and proceeds, the other gets `409`. The **partial unique index** on `{copyId}` for `ACTIVE` loans is the second line of defense — even a race or retry cannot create a second active loan. Both are covered by `test/concurrency.e2e-spec.ts`.
+- **Last-copy race — optimistic locking:** the issue path uses **optimistic concurrency control**, not pessimistic locking. No lock is acquired when the copy is first read; instead, the status assertion is pushed into the write itself:
+  ```
+  filter : { _id: copy._id, status: 'AVAILABLE' }   ← assertion: "it's still available"
+  update : { $set: { status: 'ON_LOAN' } }           ← flip atomically only if filter matched
+  ```
+  Pessimistic locking (holding an exclusive lock from read through commit) is not an option in MongoDB — there is no `SELECT FOR UPDATE` equivalent. Optimistic locking fits naturally: contention on the last copy is rare, so optimistic is cheaper (no lock overhead on the common path), and the failure cost is simply a 409 the client can surface immediately. If two requests race, MongoDB serialises the two `updateOne` calls. The first finds `status: 'AVAILABLE'`, flips it, `modifiedCount === 1` → proceeds. The second finds the copy already `ON_LOAN`, filter matches nothing, `modifiedCount === 0` → 409. The **partial unique index** on `{copyId}` for `ACTIVE` loans is the second line of defence — even a retry or a bug cannot insert a second active loan for the same copy. Both layers are exercised by `test/concurrency.e2e-spec.ts`.
 - Because the audit insert shares the business transaction, a business operation can never commit without its audit record, and a failure mid-operation rolls back the loan, the copy, and the audit together.
 
 ---
